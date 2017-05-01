@@ -78,7 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\DirectXTK\Inc;$(IncludePath)</IncludePath>
+    <IncludePath>
+    </IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -197,11 +198,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <MeshContentTask Include="Assets\ball.FBX" />
     <MeshContentTask Include="Assets\ground1m.FBX" />
-    <MeshContentTask Include="Assets\ground200m.FBX" />
     <MeshContentTask Include="Assets\sky.FBX" />
-    <MeshContentTask Include="Assets\tpot.FBX" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

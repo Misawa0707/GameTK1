@@ -82,16 +82,9 @@ private:
 
 	//エフェクトファクトリー
 	std::unique_ptr<DirectX::EffectFactory> m_factory;
-	//ｔポット
-	std::unique_ptr<DirectX::Model> m_modeltpot;
 	//天球モデル
 	std::unique_ptr<DirectX::Model> m_modelsky;
 	//地面モデル
 	std::unique_ptr<DirectX::Model> m_modelGround;
-	//球モデル
-	std::unique_ptr<DirectX::Model> m_modelball;
-	//球のワールド行列
-	DirectX::SimpleMath::Matrix m_worlball[20];
-	DirectX::SimpleMath::Matrix m_worltpot[20];
-	float m_conut;
+
 };
