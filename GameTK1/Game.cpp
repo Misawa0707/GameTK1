@@ -27,30 +27,32 @@ Game::Game() :
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
-    m_window = window;
-    m_outputWidth = std::max(width, 1);
-    m_outputHeight = std::max(height, 1);
+	m_window = window;
+	m_outputWidth = std::max(width, 1);
+	m_outputHeight = std::max(height, 1);
 
-    CreateDevice();
+	CreateDevice();
 
-    CreateResources();
+	CreateResources();
 
-    // TODO: Change the timer settings if you want something other than the default variable timestep mode.
-    // e.g. for 60 FPS fixed timestep update logic, call:
-    /*
-    m_timer.SetFixedTimeStep(true);
-    m_timer.SetTargetElapsedSeconds(1.0 / 60);
-    */
+	// TODO: Change the timer settings if you want something other than the default variable timestep mode.
+	// e.g. for 60 FPS fixed timestep update logic, call:
+	/*
+	m_timer.SetFixedTimeStep(true);
+	m_timer.SetTargetElapsedSeconds(1.0 / 60);
+	*/
 	//	初期化はここに書く
 
-	
+
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(m_d3dContext.Get());
 
 	m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
 
 	m_effect->SetProjection(XMMatrixOrthographicOffCenterRH(0,
-		m_outputWidth, m_outputHeight, 0, 0, 1));
+		m_outputWidth, m_outputHeight, 0.0f, 0.0f, 1.0f));
 	m_effect->SetVertexColorEnabled(true);
+
+	m_conut = 0.0f;
 
 	void const* shaderByteCode;
 	size_t byteCodeLength;
@@ -77,10 +79,20 @@ void Game::Initialize(HWND window, int width, int height)
 	);
 	//モデルの生成
 	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(),
-		L"Resources/ground1m.cmo",
+		L"Resources/ground200m.cmo",
+		*m_factory
+	);
+	//ｔポットの作成
+	m_modeltpot = Model::CreateFromCMO(m_d3dDevice.Get(),
+		L"Resources/tpot.cmo",
+		*m_factory
+	);
+	//球の生成
+	m_modelball = Model::CreateFromCMO(m_d3dDevice.Get(),
+		L"Resources/ball.cmo",
 		*m_factory
 		);
-
+	
 }
 
 // Executes the basic game loop.
@@ -101,8 +113,67 @@ void Game::Update(DX::StepTimer const& timer)
 
     // TODO: Add your game logic here.
     elapsedTime;
+	//カウント
+	m_conut++;
 	//マイフレーム処理をここに書く
 	m_debugcamera->Update();
+	for (int i = 0; i < 10; i++)
+	{	
+		//ワールド行列の計算
+		//スケーリング
+		Matrix scalemat = Matrix::CreateScale(1.0f);
+		//ロール
+		Matrix rotmatz = Matrix::CreateRotationZ(0);
+		//X軸周り回転 ピッチ（仰角）
+		Matrix rotmatx = Matrix::CreateRotationX(0);
+		//ヨー（方位角）
+		Matrix rotmaty = Matrix::CreateRotationY(XMConvertToRadians(360/10*i-m_conut));
+		//回転行列の合成
+		Matrix rotmat = rotmatz * rotmatx * rotmaty;
+		//平行移動
+		Matrix transmat = Matrix::CreateTranslation(40, 0, 0);
+		//ワールド行列の合成(SRT)
+		m_worlball[i] = transmat*rotmat;
+	}
+
+	for (int i = 0; i < 10; i++)
+	{
+		//ワールド行列の計算
+		//スケーリング
+		Matrix scalemat = Matrix::CreateScale(1.0f);
+		//ロール
+		Matrix rotmatz = Matrix::CreateRotationZ(0);
+		//X軸周り回転 ピッチ（仰角）
+		Matrix rotmatx = Matrix::CreateRotationX(0);
+		//ヨー（方位角）
+		Matrix rotmaty = Matrix::CreateRotationY(XMConvertToRadians(360 / 10 * i + m_conut));
+		//回転行列の合成
+		Matrix rotmat = rotmatz * rotmatx * rotmaty;
+		//平行移動
+		Matrix transmat = Matrix::CreateTranslation(60, 0, 0);
+		//ワールド行列の合成(SRT)
+		m_worlball[i+10] = scalemat*transmat*rotmat;
+	}
+
+	for (int i = 0; i < 20; i++)
+	{
+		//ワールド行列の計算
+		//スケーリング
+		Matrix scalemat = Matrix::CreateScale(1.0f);
+		//ロール
+		Matrix rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(0));
+		//X軸周り回転 ピッチ（仰角）
+		Matrix rotmatx = Matrix::CreateRotationX(XMConvertToRadians(0));
+		//ヨー（方位角）
+		Matrix rotmaty = Matrix::CreateRotationY(XMConvertToRadians(360 / 10 * i +m_conut));
+		//回転行列の合成
+		Matrix rotmat = rotmatz * rotmatx* rotmaty ;
+		//平行移動
+		Matrix transmat = Matrix::CreateTranslation(0, 0, 0);
+		//ワールド行列の合成(SRT)
+		m_worltpot[i] = transmat*scalemat*rotmat;
+	}
+	
 }
 
 // Draws the scene.
@@ -162,17 +233,37 @@ void Game::Render()
 	//天球モデルの描画
 	m_modelsky->Draw(m_d3dContext.Get(),
 		*m_states,
-		m_world,
+		Matrix::Identity,
 		m_view,
 		m_proj
 	);
 	//地面モデルの描画
 	m_modelGround->Draw(m_d3dContext.Get(),
 		*m_states,
-		m_world,
+		Matrix::Identity,
 		m_view,
 		m_proj
 		);
+	//for (int i = 0; i < 20; i++)
+	//{
+	//	//ボール
+	//	m_modelball->Draw(m_d3dContext.Get(),
+	//		*m_states,
+	//		m_worlball[i],
+	//		m_view,
+	//		m_proj
+	//	);
+	//}
+		for (int i = 0; i < 20; i++)
+		{
+			//ｔポット
+			m_modeltpot->Draw(m_d3dContext.Get(),
+				*m_states,
+				m_worltpot[i],
+				m_view,
+				m_proj
+			);
+		}
 
 	//描画
 	m_batch->Begin();
