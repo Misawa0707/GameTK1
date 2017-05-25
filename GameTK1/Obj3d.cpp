@@ -33,20 +33,51 @@ void Obj3d::InitializeStatic(Microsoft::WRL::ComPtr<ID3D11Device> d3dDevice, Mic
 Obj3d::Obj3d()
 {
 	//メンバ変数の初期化
+	m_scale = Vector3(1, 1, 1);
+	m_ObjParent = nullptr;
+
 
 }
 
 void Obj3d::LoadModel(const wchar_t * fileName)
 {
 	//COMからモデルを読み込む
+	m_model = Model::CreateFromCMO(
+		m_d3dDevice.Get(),
+		fileName,
+		*m_factory
+	);
+
 }
 
 void Obj3d::Update()
 {
 	//ワールド行列の計算
+	Matrix scalemat = Matrix::CreateScale(m_scale);
+	Matrix rotmatZ = Matrix::CreateRotationZ(m_rotation.z);
+	Matrix rotmatX = Matrix::CreateRotationX(m_rotation.x);
+	Matrix rotmatY = Matrix::CreateRotationY(m_rotation.y);
+	Matrix rotmat = rotmatZ * rotmatX * rotmatY;
+	Matrix transmat = Matrix::CreateTranslation(m_translaton);
+	// ワールド行列の合成
+	m_world = scalemat * rotmat * transmat;
+	//親の行列をかける
+	if(m_ObjParent)
+	{ 
+		m_world *= m_ObjParent->GetWorld();
+	}
 }
 
 void Obj3d::Draw()
 {
 	//描画
+	if (m_model)
+	{
+		m_model->Draw(m_d3dContext.Get(),
+			*m_states,
+			m_world,
+			m_Camera->GetView(),
+			m_Camera->GetProj()
+			);
+	}
 }

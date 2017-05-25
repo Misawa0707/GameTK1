@@ -44,42 +44,37 @@ public:
 	void Update();
 	//描画
 	void Draw();
-
-	//メンバ関数
-
 	//スケーリング（XYZ)
 	//setter
-
+	void Setscale(const DirectX::SimpleMath::Vector3& scale)		{ m_scale = scale; }
 	//回転角（XYZ)
-	
+	void Setrotation(const DirectX::SimpleMath::Vector3& rotation) { m_rotation = rotation; }
 	//平行移動（XYZ)
-
-	//ワールド行列
-
+	void Settranslaton(const DirectX::SimpleMath::Vector3& translaton) { m_translaton = translaton; }
 	//親の３Dオブジェクトへのポインタ
-
+	void SetObjParent(Obj3d* ObjParent) { m_ObjParent = ObjParent; }
 	//スケーリング（XYZ)
 	//getter
-
+	const DirectX::SimpleMath::Vector3& Getscale() { return m_scale; }
 	//回転角（XYZ)
-
+	const DirectX::SimpleMath::Vector3& Getrotation() { return m_rotation; }
 	//平行移動（XYZ)
-
+	const DirectX::SimpleMath::Vector3& Gettranslaton() { return m_translaton; }
 	//ワールド行列
+	const DirectX::SimpleMath::Matrix& GetWorld() { return m_world; }
 
 private:
 	//メンバ変数
-
 	//モデル
-
+	std::unique_ptr<DirectX::Model> m_model;
 	//スケーリング（XYZ)
-
+	DirectX::SimpleMath::Vector3 m_scale;
 	//回転角（XYZ)
-
+	DirectX::SimpleMath::Vector3 m_rotation;
 	//平行移動（XYZ)
-
+	DirectX::SimpleMath::Vector3 m_translaton;
 	//ワールド行列
-	
+	DirectX::SimpleMath::Matrix m_world;
 	//親のObj3dへのポインタ
 	Obj3d* m_ObjParent;
 
