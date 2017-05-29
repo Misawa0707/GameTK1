@@ -31,9 +31,11 @@ public:
 		PLAYER_PARTS_BODY2,		//胴体２
 		PLAYER_PARTS_HAND,		//手
 		PLAYER_PARTS_HEAD,		//頭
+		PLAYER_PARTS_HAND2,		//手
 
 		PLAYER_PARTS_NUM
 	};
+
 	Game();
 
 	// Initialization and management
@@ -123,6 +125,8 @@ private:
 	float head_angle;
 	//自機パーツ
 	std::vector<Obj3d> m_ObjPlayer;
+	//sin用の角度
+	float m_cycle;
 	// カメラ
 	std::unique_ptr<FollowCamera> m_Camera;
 };

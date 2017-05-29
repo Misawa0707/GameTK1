@@ -93,25 +93,40 @@ void Game::Initialize(HWND window, int width, int height)
 		L"Resources/ball.cmo",
 		*m_factory
 	);
-	// モデルの生成
-	/*m_modelHead = Model::CreateFromCMO(
-		m_d3dDevice.Get(),
-		L"Resources/head.cmo",
-		*m_factory
-	);*/
 
 	m_AngleBall = 0.0f;
 
-
-
 	head_angle = 0.0f;
-
+	//自機パーツの読み込み
 	m_ObjPlayer.resize(PLAYER_PARTS_NUM);
 	m_ObjPlayer[PLAYER_PARTS_TANK].LoadModel(L"Resources/tank.cmo");
 	m_ObjPlayer[PLAYER_PARTS_BODY].LoadModel(L"Resources/body.cmo");
 	m_ObjPlayer[PLAYER_PARTS_BODY2].LoadModel(L"Resources/body2.cmo");
 	m_ObjPlayer[PLAYER_PARTS_HAND].LoadModel(L"Resources/hand.cmo");
 	m_ObjPlayer[PLAYER_PARTS_HEAD].LoadModel(L"Resources/head.cmo");
+	m_ObjPlayer[PLAYER_PARTS_HAND2].LoadModel(L"Resources/hand.cmo");
+
+	//親子関係の構築(子パーツに親パーツを設定アドレス渡し)
+	m_ObjPlayer[PLAYER_PARTS_BODY].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_TANK]);
+	m_ObjPlayer[PLAYER_PARTS_BODY2].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_BODY]);
+	m_ObjPlayer[PLAYER_PARTS_HAND].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_BODY2]);
+	m_ObjPlayer[PLAYER_PARTS_HEAD].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_BODY2]);
+	m_ObjPlayer[PLAYER_PARTS_HAND2].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_BODY2]);
+
+	//子パーツの親からのオフセットを設定
+	m_ObjPlayer[PLAYER_PARTS_BODY].Settranslaton(Vector3(0, 0.3f, 0));
+	m_ObjPlayer[PLAYER_PARTS_BODY2].Settranslaton(Vector3(0, 0.5f, 0));
+	m_ObjPlayer[PLAYER_PARTS_HAND].Settranslaton(Vector3(-0.35f, 0.3f, 0.0f));
+	m_ObjPlayer[PLAYER_PARTS_HEAD].Settranslaton(Vector3(0, 0.4f, 0));
+	m_ObjPlayer[PLAYER_PARTS_HAND2].Settranslaton(Vector3(0.35f, 0.3f, 0.0f));
+	//パーツの初期状態
+	m_ObjPlayer[PLAYER_PARTS_HAND].Setscale(Vector3(1.5f,1.5f,1.5f));
+	m_ObjPlayer[PLAYER_PARTS_HAND2].Setscale(Vector3(1.5f, 1.5f, 1.5f));
+
+	m_ObjPlayer[PLAYER_PARTS_HAND2].Setrotation(Vector3(0, 0, XMConvertToRadians(-30)));
+	m_ObjPlayer[PLAYER_PARTS_HAND].Setrotation(Vector3(0, 0, XMConvertToRadians(30)));
+
+	m_cycle = 0.0f;
 }
 
 // Executes the basic game loop.
@@ -175,6 +190,25 @@ void Game::Update(DX::StepTimer const& timer)
 		// ワールド行列の合成(SRT)
 		m_worldBall[i + 10] = rotmat * transmat;
 	}
+
+	//パーツギミック
+	{
+		float angle = m_ObjPlayer[PLAYER_PARTS_HAND].Getrotation().z;
+		m_ObjPlayer[PLAYER_PARTS_HAND].Setrotation(Vector3(0,0 , angle - 0.03f));
+
+		float angle2 = m_ObjPlayer[PLAYER_PARTS_HAND2].Getrotation().z;
+		m_ObjPlayer[PLAYER_PARTS_HAND2].Setrotation(Vector3(0, 0, angle2 + 0.03f));
+
+		
+	/*	Vector3 pos = m_ObjPlayer[PLAYER_PARTS_HAND].Gettranslaton();
+		m_ObjPlayer[PLAYER_PARTS_HAND].Settranslaton(pos + Vector3(-0.05f, 0, 0));
+	*/
+
+		m_cycle += 0.1f;
+		float scale = 1.0f + sinf(m_cycle);
+		m_ObjPlayer[PLAYER_PARTS_HEAD].Setscale(Vector3(scale, scale, scale));
+	}
+
 	// キーボードの状態取得
 	Keyboard::State g_key = keyboard->GetState();
 
@@ -182,14 +216,20 @@ void Game::Update(DX::StepTimer const& timer)
 	if (g_key.A)
 	{
 		// 自機の角度を回転
-		head_angle += 0.03f;
+		//head_angle += 0.03f;
+		float angle =m_ObjPlayer[0].Getrotation().y;
+		m_ObjPlayer[0].Setrotation(Vector3(0, angle + 0.03f, 0));
+
 	}
+
 
 	// 右旋回処理
 	if (g_key.D)
 	{
 		// 自機の角度を回転
-		head_angle += -0.03f;
+		//head_angle += -0.03f;
+		float angle = m_ObjPlayer[0].Getrotation().y;
+		m_ObjPlayer[0].Setrotation(Vector3(0, angle - 0.03f, 0));
 	}
 
 	// 前進処理
@@ -199,10 +239,12 @@ void Game::Update(DX::StepTimer const& timer)
 		Vector3 moveV(0, 0, -0.1f);
 		// 移動ベクトルを自機の角度分回転させる
 		//moveV = Vector3::TransformNormal(moveV, head_world);
-		Matrix rotmat = Matrix::CreateRotationY(head_angle);
+		float angle = m_ObjPlayer[0].Getrotation().y;
+		Matrix rotmat = Matrix::CreateRotationY(angle);
 		moveV = Vector3::TransformNormal(moveV, rotmat);
 		// 自機の座標を移動
-		head_pos += moveV;
+		Vector3 pos = m_ObjPlayer[0].Gettranslaton();
+		m_ObjPlayer[0].Settranslaton(pos + moveV);
 	}
 
 	// 後退処理
@@ -211,10 +253,13 @@ void Game::Update(DX::StepTimer const& timer)
 		// 移動量のベクトル
 		Vector3 moveV(0, 0, +0.1f);
 		// 移動ベクトルを自機の角度分回転させる
-		Matrix rotmat = Matrix::CreateRotationY(head_angle);
+		//moveV = Vector3::TransformNormal(moveV, head_world);
+		float angle = m_ObjPlayer[0].Getrotation().y;
+		Matrix rotmat = Matrix::CreateRotationY(angle);
 		moveV = Vector3::TransformNormal(moveV, rotmat);
 		// 自機の座標を移動
-		head_pos += moveV;
+		Vector3 pos = m_ObjPlayer[0].Gettranslaton();
+		m_ObjPlayer[0].Settranslaton(pos + moveV);
 	}
 
 	//{// 自機のワールド行列を計算
@@ -339,27 +384,12 @@ void Game::Render()
 			m_proj
 		);
 	}
-
+	//プレイヤーのモデル
 	for (std::vector<Obj3d>::iterator it = m_ObjPlayer.begin();
 		it != m_ObjPlayer.end(); it++)
 	{
 		it->Draw();
 	}
-	// パーツ１の描画
-	/*m_modelHead->Draw(m_d3dContext.Get(),
-		*m_states,
-		head_world,
-		m_view,
-		m_proj
-	);
-*/
-	// パーツ２の描画
-	//m_modelHead->Draw(m_d3dContext.Get(),
-	//	*m_states,
-	//	head_world2,
-	//	m_view,
-	//	m_proj
-	//);
 
 	m_batch->Begin();
 
