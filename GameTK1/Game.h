@@ -23,19 +23,6 @@ class Game
 {
 public:
 	
-	//自機パーツ
-	enum PLAYER_PARTS
-	{
-		PLAYER_PARTS_TANK,		//足
-		PLAYER_PARTS_BODY,		//胴体
-		PLAYER_PARTS_BODY2,		//胴体２
-		PLAYER_PARTS_HAND,		//手
-		PLAYER_PARTS_HEAD,		//頭
-		PLAYER_PARTS_HAND2,		//手
-
-		PLAYER_PARTS_NUM
-	};
-
 	Game();
 
 	// Initialization and management
@@ -119,14 +106,8 @@ private:
 	float m_AngleBall;
 	// キーボード
 	std::unique_ptr<DirectX::Keyboard> keyboard;
-	// 自機の座標
-	DirectX::SimpleMath::Vector3 head_pos;
-	// 自機の回転角
-	float head_angle;
-	//自機パーツ
-	std::vector<Obj3d> m_ObjPlayer;
-	//sin用の角度
-	float m_cycle;
+	
+	
 	// カメラ
 	std::unique_ptr<FollowCamera> m_Camera;
 };

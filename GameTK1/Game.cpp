@@ -87,46 +87,17 @@ void Game::Initialize(HWND window, int width, int height)
 		L"Resources/ground200m.cmo",
 		*m_factory
 	);
-	// モデルの生成
-	m_modelBall = Model::CreateFromCMO(
-		m_d3dDevice.Get(),
-		L"Resources/ball.cmo",
-		*m_factory
-	);
+	// ボールモデルの生成
+
+	//m_modelBall = Model::CreateFromCMO(
+	//	m_d3dDevice.Get(),
+	//	L"Resources/ball.cmo",
+	//	*m_factory
+	//);
 
 	m_AngleBall = 0.0f;
 
-	head_angle = 0.0f;
-	//自機パーツの読み込み
-	m_ObjPlayer.resize(PLAYER_PARTS_NUM);
-	m_ObjPlayer[PLAYER_PARTS_TANK].LoadModel(L"Resources/tank.cmo");
-	m_ObjPlayer[PLAYER_PARTS_BODY].LoadModel(L"Resources/body.cmo");
-	m_ObjPlayer[PLAYER_PARTS_BODY2].LoadModel(L"Resources/body2.cmo");
-	m_ObjPlayer[PLAYER_PARTS_HAND].LoadModel(L"Resources/hand.cmo");
-	m_ObjPlayer[PLAYER_PARTS_HEAD].LoadModel(L"Resources/head.cmo");
-	m_ObjPlayer[PLAYER_PARTS_HAND2].LoadModel(L"Resources/hand.cmo");
-
-	//親子関係の構築(子パーツに親パーツを設定アドレス渡し)
-	m_ObjPlayer[PLAYER_PARTS_BODY].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_TANK]);
-	m_ObjPlayer[PLAYER_PARTS_BODY2].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_BODY]);
-	m_ObjPlayer[PLAYER_PARTS_HAND].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_BODY2]);
-	m_ObjPlayer[PLAYER_PARTS_HEAD].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_BODY2]);
-	m_ObjPlayer[PLAYER_PARTS_HAND2].SetObjParent(&m_ObjPlayer[PLAYER_PARTS_BODY2]);
-
-	//子パーツの親からのオフセットを設定
-	m_ObjPlayer[PLAYER_PARTS_BODY].Settranslaton(Vector3(0, 0.3f, 0));
-	m_ObjPlayer[PLAYER_PARTS_BODY2].Settranslaton(Vector3(0, 0.5f, 0));
-	m_ObjPlayer[PLAYER_PARTS_HAND].Settranslaton(Vector3(-0.35f, 0.3f, 0.0f));
-	m_ObjPlayer[PLAYER_PARTS_HEAD].Settranslaton(Vector3(0, 0.4f, 0));
-	m_ObjPlayer[PLAYER_PARTS_HAND2].Settranslaton(Vector3(0.35f, 0.3f, 0.0f));
-	//パーツの初期状態
-	m_ObjPlayer[PLAYER_PARTS_HAND].Setscale(Vector3(1.5f,1.5f,1.5f));
-	m_ObjPlayer[PLAYER_PARTS_HAND2].Setscale(Vector3(1.5f, 1.5f, 1.5f));
-
-	m_ObjPlayer[PLAYER_PARTS_HAND2].Setrotation(Vector3(0, 0, XMConvertToRadians(-30)));
-	m_ObjPlayer[PLAYER_PARTS_HAND].Setrotation(Vector3(0, 0, XMConvertToRadians(30)));
-
-	m_cycle = 0.0f;
+	
 }
 
 // Executes the basic game loop.
@@ -151,148 +122,58 @@ void Game::Update(DX::StepTimer const& timer)
 	m_debugCamera->Update();
 
 	m_AngleBall += 1.0f;
+	
+	// ボールワールド行列を計算
 
-	// ワールド行列を計算
-	for (int i = 0; i < 10; i++)
-	{
-		// スケーリング
-		Matrix scalemat = Matrix::CreateScale(1.0f);
-		// ロール
-		Matrix rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(0));
-		// ピッチ（仰角）
-		Matrix rotmatx = Matrix::CreateRotationX(XMConvertToRadians(0));
-		// ヨー（方位角）
-		Matrix rotmaty = Matrix::CreateRotationY(XMConvertToRadians(360.0f / 10 * i + m_AngleBall));
-		// 回転行列の合成
-		Matrix rotmat = rotmatz * rotmatx * rotmaty;
+	//for (int i = 0; i < 10; i++)
+	//{
+	//	// スケーリング
+	//	Matrix scalemat = Matrix::CreateScale(1.0f);
+	//	// ロール
+	//	Matrix rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(0));
+	//	// ピッチ（仰角）
+	//	Matrix rotmatx = Matrix::CreateRotationX(XMConvertToRadians(0));
+	//	// ヨー（方位角）
+	//	Matrix rotmaty = Matrix::CreateRotationY(XMConvertToRadians(360.0f / 10 * i + m_AngleBall));
+	//	// 回転行列の合成
+	//	Matrix rotmat = rotmatz * rotmatx * rotmaty;
+	//	// 平行移動
+	//	Matrix transmat = Matrix::CreateTranslation(20, 0, 0);
+	//	// ワールド行列の合成(SRT)
+	//	m_worldBall[i] = transmat * rotmat;
+	//}
 
-		// 平行移動
-		Matrix transmat = Matrix::CreateTranslation(20, 0, 0);
-		// ワールド行列の合成(SRT)
-		m_worldBall[i] = transmat * rotmat;
-	}
-
-	for (int i = 0; i < 10; i++)
-	{
-		// スケーリング
-		Matrix scalemat = Matrix::CreateScale(1.0f);
-		// ロール
-		Matrix rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(0));
-		// ピッチ（仰角）
-		Matrix rotmatx = Matrix::CreateRotationX(XMConvertToRadians(0));
-		// ヨー（方位角）
-		Matrix rotmaty = Matrix::CreateRotationY(XMConvertToRadians(360.0f / 10 * i - m_AngleBall));
-		// 回転行列の合成
-		Matrix rotmat = rotmatz * rotmatx * rotmaty;
-
-		// 平行移動
-		Matrix transmat = Matrix::CreateTranslation(40, 0, 0);
-		// ワールド行列の合成(SRT)
-		m_worldBall[i + 10] = rotmat * transmat;
-	}
-
-	//パーツギミック
-	{
-		float angle = m_ObjPlayer[PLAYER_PARTS_HAND].Getrotation().z;
-		m_ObjPlayer[PLAYER_PARTS_HAND].Setrotation(Vector3(0,0 , angle - 0.03f));
-
-		float angle2 = m_ObjPlayer[PLAYER_PARTS_HAND2].Getrotation().z;
-		m_ObjPlayer[PLAYER_PARTS_HAND2].Setrotation(Vector3(0, 0, angle2 + 0.03f));
-
-		
-	/*	Vector3 pos = m_ObjPlayer[PLAYER_PARTS_HAND].Gettranslaton();
-		m_ObjPlayer[PLAYER_PARTS_HAND].Settranslaton(pos + Vector3(-0.05f, 0, 0));
-	*/
-
-		m_cycle += 0.1f;
-		float scale = 1.0f + sinf(m_cycle);
-		m_ObjPlayer[PLAYER_PARTS_HEAD].Setscale(Vector3(scale, scale, scale));
-	}
+	//for (int i = 0; i < 10; i++)
+	//{
+	//	// スケーリング
+	//	Matrix scalemat = Matrix::CreateScale(1.0f);
+	//	// ロール
+	//	Matrix rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(0));
+	//	// ピッチ（仰角）
+	//	Matrix rotmatx = Matrix::CreateRotationX(XMConvertToRadians(0));
+	//	// ヨー（方位角）
+	//	Matrix rotmaty = Matrix::CreateRotationY(XMConvertToRadians(360.0f / 10 * i - m_AngleBall));
+	//	// 回転行列の合成
+	//	Matrix rotmat = rotmatz * rotmatx * rotmaty;
+	//	// 平行移動
+	//	Matrix transmat = Matrix::CreateTranslation(40, 0, 0);
+	//	// ワールド行列の合成(SRT)
+	//	m_worldBall[i + 10] = rotmat * transmat;
+	//}
 
 	// キーボードの状態取得
 	Keyboard::State g_key = keyboard->GetState();
 
-	// 左旋回処理
-	if (g_key.A)
+	m_objSkydome.Update();
+
 	{
-		// 自機の角度を回転
-		//head_angle += 0.03f;
-		float angle =m_ObjPlayer[0].Getrotation().y;
-		m_ObjPlayer[0].Setrotation(Vector3(0, angle + 0.03f, 0));
-
-	}
-
-
-	// 右旋回処理
-	if (g_key.D)
-	{
-		// 自機の角度を回転
-		//head_angle += -0.03f;
-		float angle = m_ObjPlayer[0].Getrotation().y;
-		m_ObjPlayer[0].Setrotation(Vector3(0, angle - 0.03f, 0));
-	}
-
-	// 前進処理
-	if (g_key.W)
-	{
-		// 移動量のベクトル
-		Vector3 moveV(0, 0, -0.1f);
-		// 移動ベクトルを自機の角度分回転させる
-		//moveV = Vector3::TransformNormal(moveV, head_world);
-		float angle = m_ObjPlayer[0].Getrotation().y;
-		Matrix rotmat = Matrix::CreateRotationY(angle);
-		moveV = Vector3::TransformNormal(moveV, rotmat);
-		// 自機の座標を移動
-		Vector3 pos = m_ObjPlayer[0].Gettranslaton();
-		m_ObjPlayer[0].Settranslaton(pos + moveV);
-	}
-
-	// 後退処理
-	if (g_key.S)
-	{
-		// 移動量のベクトル
-		Vector3 moveV(0, 0, +0.1f);
-		// 移動ベクトルを自機の角度分回転させる
-		//moveV = Vector3::TransformNormal(moveV, head_world);
-		float angle = m_ObjPlayer[0].Getrotation().y;
-		Matrix rotmat = Matrix::CreateRotationY(angle);
-		moveV = Vector3::TransformNormal(moveV, rotmat);
-		// 自機の座標を移動
-		Vector3 pos = m_ObjPlayer[0].Gettranslaton();
-		m_ObjPlayer[0].Settranslaton(pos + moveV);
-	}
-
-	//{// 自機のワールド行列を計算
-	//	//パーツ１の計算
-	//	Matrix rotmat = Matrix::CreateRotationY(head_angle);
-	//	Matrix transmat = Matrix::CreateTranslation(head_pos);
-	//	// ワールド行列の合成
-	//	head_world = rotmat * transmat;
-	//
-	//
-	////パーツ2の計算
-	//Matrix rotmat2 = Matrix::CreateRotationY(XM_PIDIV2)*Matrix::CreateRotationZ(0);
-	//Matrix transmat2 = Matrix::CreateTranslation(Vector3(0,0.5f,0));
-	//// ワールド行列の合成(子＊親の順番）　　親子関係
-	//head_world2 = rotmat2 * transmat2 * head_world;
-	//}
-
-
-	{// 自機に追従するカメラ
-		m_Camera->SetTargetPos(head_pos);
-		m_Camera->SetTargetAngle(head_angle);
+		// 自機に追従するカメラ
+		/*m_Camera->SetTargetPos(head_pos);
+		m_Camera->SetTargetAngle(head_angle);*/
 
 		m_Camera->Update();
 		m_view = m_Camera->GetView();
 		m_proj = m_Camera->GetProj();
-	}
-
-	m_objSkydome.Update();
-
-	for (std::vector<Obj3d>::iterator it = m_ObjPlayer.begin();
-		it != m_ObjPlayer.end(); it++)
-	{
-		it->Update();
 	}
 }
 
@@ -327,46 +208,15 @@ void Game::Render()
 	m_d3dContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	m_d3dContext->RSSetState(m_states->Wireframe());
 
-	// ビュー行列を生成
-	//m_view = Matrix::CreateLookAt(
-	//	Vector3(0, 0, 2.f),	// カメラ視点
-	//	Vector3(0,0,0),	// カメラ参照点
-	//	Vector3(0,1,0)	// 画面上方向ベクトル
-	//);
-	// デバッグカメラからビュー行列を取得
-	//m_view = m_debugCamera->GetCameraMatrix();
-
-	//// カメラの位置（視点座標）
-	//Vector3 eyepos(0, 0, 5);
-	//// カメラの見ている先(注視点/参照点)
-	//Vector3 refpos(0, 0, 0);
-	//// カメラの上方向ベクトル
-	//static float angle = 0.0f;
-	//angle += 0.1f;
-	//Vector3 upvec(cosf(angle), sinf(angle), 0);
-	//upvec.Normalize();
-	//// ビュー行列の生成
-	//m_view = Matrix::CreateLookAt(eyepos, refpos, upvec);
-	// プロジェクション行列を生成
-	//// 垂直方向視野角
-	//float fovY = XMConvertToRadians(60.0f);
-	//// アスペクト比（横縦の比率）
-	//float aspect = (float)m_outputWidth / m_outputHeight;
-	//// ニアクリップ（手前の表示限界距離）
-	//float nearclip = 0.1f;
-	//// ファークリップ（奥の表示限界距離）
-	//float farclip = 1000.0f;
-	//// 射影行列の生成
-	//m_proj = Matrix::CreatePerspectiveFieldOfView(fovY,	aspect,	nearclip,farclip);
-
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);
 
 	m_effect->Apply(m_d3dContext.Get());
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
 
-	// モデルの描画
+	//天球モデルの描画
 	m_objSkydome.Draw();
+
 	// モデルの描画
 	m_modelGround->Draw(m_d3dContext.Get(),
 		*m_states,
@@ -374,8 +224,9 @@ void Game::Render()
 		m_view,
 		m_proj
 	);
-	// モデルの描画
-	for (int i = 0; i < 20; i++)
+
+	// ボールの描画
+	/*for (int i = 0; i < 20; i++)
 	{
 		m_modelBall->Draw(m_d3dContext.Get(),
 			*m_states,
@@ -383,36 +234,9 @@ void Game::Render()
 			m_view,
 			m_proj
 		);
-	}
-	//プレイヤーのモデル
-	for (std::vector<Obj3d>::iterator it = m_ObjPlayer.begin();
-		it != m_ObjPlayer.end(); it++)
-	{
-		it->Draw();
-	}
+	}*/
 
 	m_batch->Begin();
-
-	m_batch->DrawIndexed(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST, indices, 6, vertices, 4);
-
-	//m_batch->DrawLine(
-	//	VertexPositionColor(
-	//		SimpleMath::Vector3(0,0,0),
-	//		SimpleMath::Color(1,1,1)),
-	//	VertexPositionColor(
-	//		SimpleMath::Vector3(800, 600, 0),
-	//		SimpleMath::Color(1, 0, 0))
-	//);
-
-	//VertexPositionColor v1(Vector3(0.f, 0.5f, 0.5f), Colors::Red);
-	//VertexPositionColor v2(Vector3(0.5f, -0.5f, 0.5f), Colors::Blue);
-	//VertexPositionColor v3(Vector3(-0.5f, -0.5f, 0.5f), Colors::Green);
-
-	////VertexPositionColor v1(Vector3(400.f, 150.f, 0.f), Colors::Red);
-	////VertexPositionColor v2(Vector3(600.f, 450.f, 0.f), Colors::Blue);
-	////VertexPositionColor v3(Vector3(200.f, 450.f, 0.f), Colors::Green);
-	//
-	//m_batch->DrawTriangle(v1, v2, v3);
 
 	m_batch->End();
 
