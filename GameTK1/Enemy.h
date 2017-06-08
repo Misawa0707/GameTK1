@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------
-// ファイル名: Player.h
+// ファイル名: Enemy.h
 // 作成者:
 // 作成日:
 // 説明:
@@ -13,7 +13,7 @@
 #include "Obj3D.h"
 
 // 自機
-class Player
+class Enemy
 {
 public:
 
@@ -30,9 +30,9 @@ public:
 	};
 
 	// コンストラクタ
-	Player(DirectX::Keyboard* keyboard);
+	Enemy(DirectX::Keyboard* keyboard);
 	// デストラクタ
-	~Player();
+	~Enemy();
 	// 初期化
 	void Initialize();
 	// 毎フレーム更新
@@ -63,5 +63,9 @@ protected:
 	// ギミックの稼動サイクル
 	float m_cycle;
 
+	//タイマー
+	int m_Timer;
+	//目標角度
+	float m_DistAngle;
 };
 

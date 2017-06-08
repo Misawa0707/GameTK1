@@ -50,8 +50,6 @@ void Game::Initialize(HWND window, int width, int height)
 
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionNormal>>(m_d3dContext.Get());
 
-
-
 	m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
 
 	m_effect->SetProjection(XMMatrixOrthographicOffCenterRH(0,
@@ -87,17 +85,22 @@ void Game::Initialize(HWND window, int width, int height)
 		L"Resources/ground200m.cmo",
 		*m_factory
 	);
-	// ボールモデルの生成
 
-	//m_modelBall = Model::CreateFromCMO(
-	//	m_d3dDevice.Get(),
-	//	L"Resources/ball.cmo",
-	//	*m_factory
-	//);
+	//プレイヤーの生成
+	m_player = std::make_unique<Player>(keyboard.get());
+	m_player->Initialize();
+	//追従カメラにプレイヤーをセット
+	m_Camera->SetPlayer(m_player.get());
 
-	m_AngleBall = 0.0f;
+	//敵の生成
+	int enemyNum = rand() % 10+1;
+	m_enemies.resize(enemyNum);
+	for (int i = 0; i < enemyNum; i++)
+	{
+		m_enemies[i] = std::make_unique<Enemy>(keyboard.get());
+		m_enemies[i]->Initialize();
+	}
 
-	
 }
 
 // Executes the basic game loop.
@@ -121,7 +124,6 @@ void Game::Update(DX::StepTimer const& timer)
 	// 毎フレーム処理を書く
 	m_debugCamera->Update();
 
-	m_AngleBall += 1.0f;
 	
 	// ボールワールド行列を計算
 
@@ -163,18 +165,21 @@ void Game::Update(DX::StepTimer const& timer)
 
 	// キーボードの状態取得
 	Keyboard::State g_key = keyboard->GetState();
-
-	m_objSkydome.Update();
-
+	m_player->Update();
+	for (std::vector<std::unique_ptr<Enemy>> ::iterator it = m_enemies.begin();
+		it != m_enemies.end(); it++)
 	{
-		// 自機に追従するカメラ
-		/*m_Camera->SetTargetPos(head_pos);
-		m_Camera->SetTargetAngle(head_angle);*/
-
+		Enemy* enemy = it->get();
+		enemy->Update();
+		//(*it)->Update();でもいい
+	}
+	{
+		//カメラ
 		m_Camera->Update();
 		m_view = m_Camera->GetView();
 		m_proj = m_Camera->GetProj();
 	}
+	m_objSkydome.Update();
 }
 
 // Draws the scene.
@@ -224,17 +229,16 @@ void Game::Render()
 		m_view,
 		m_proj
 	);
+	//プレイヤーの描画
+	m_player->Draw();
 
-	// ボールの描画
-	/*for (int i = 0; i < 20; i++)
+	for (std::vector<std::unique_ptr<Enemy>> ::iterator it = m_enemies.begin();
+		it != m_enemies.end(); it++)
 	{
-		m_modelBall->Draw(m_d3dContext.Get(),
-			*m_states,
-			m_worldBall[i],
-			m_view,
-			m_proj
-		);
-	}*/
+		Enemy* enemy = it->get();
+		enemy->Draw();
+		//(*it)->Drae();でもいい
+	}
 
 	m_batch->Begin();
 
