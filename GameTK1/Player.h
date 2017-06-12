@@ -41,6 +41,10 @@ public:
 	void Calc();
 	// 描画
 	void Draw();
+	//弾丸を発射
+	void FireBullet();
+	//弾丸を再装着（リセット）
+	void ResetBullet();
 	// 座標を取得
 	const DirectX::SimpleMath::Vector3& GetTrans();
 	// 回転を取得
@@ -63,5 +67,9 @@ protected:
 	// ギミックの稼動サイクル
 	float m_cycle;
 
+	//弾丸の速度ベクトル
+	DirectX::SimpleMath::Vector3 m_BulletVel;
+
+	bool m_FireFlag;
 };
 

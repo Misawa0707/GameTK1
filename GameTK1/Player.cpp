@@ -132,8 +132,20 @@ void Player::Update()
 		Vector3 pos = m_Obj[0].Gettranslaton();
 		m_Obj[0].Settranslaton(pos + moveV);
 	}
-
+	//弾丸パーツの前進
+	if(keystate.Space)
+	{
+		// 弾丸の座標を移動
+		Vector3 pos = m_Obj[PARTS_HAND].Gettranslaton();
+		m_Obj[PARTS_HAND].Settranslaton(pos + m_BulletVel);
+	}
+	if (keystate.F)
+	{
+		ResetBullet();
+	}
 	Calc();
+	
+	FireBullet();
 
 }
 
@@ -160,6 +172,46 @@ void Player::Draw()
 	{
 		it->Draw();
 	}
+}
+
+void Player::FireBullet()
+{
+	
+	if (m_FireFlag)  return;
+
+	//発射するパーツのワールド行列を取得
+	Matrix worldm = m_Obj[PARTS_HAND].GetWorld();
+
+	//抽出した情報をしまっておく
+	Vector3 scale;			//ワールドスケーリング
+	Quaternion rotation;	//ワールド回転
+	Vector3 translation;	//ワールド座標
+	//ワールド行列から各要素を抽出
+	worldm.Decompose(scale, rotation, translation);
+	//親パーツから分離
+	m_Obj[PARTS_HAND].SetObjParent(nullptr);
+	m_Obj[PARTS_HAND].Setscale(scale);
+	m_Obj[PARTS_HAND].SetrotationQ(rotation);
+	m_Obj[PARTS_HAND].Settranslaton(translation);
+
+	//弾丸パーツの速度設定
+	m_BulletVel = Vector3(0, 0, -0.1f);
+	//パーツの向きに合わせて速度ベクトルを回転
+	m_BulletVel = Vector3::Transform(m_BulletVel, rotation);
+
+	m_FireFlag = true;
+
+}
+
+void Player::ResetBullet()
+{
+	if (!m_FireFlag)	return;
+	m_Obj[PARTS_HAND].SetObjParent(&m_Obj[PARTS_BODY2]);
+	m_Obj[PARTS_HAND].Settranslaton(Vector3(-0.35f, 0.3f, 0.0f));
+	m_Obj[PARTS_HAND].Setscale(Vector3(1.5f, 1.5f, 1.5f));
+	m_Obj[PARTS_HAND].Setrotation(Vector3(0, 0, XMConvertToRadians(30)));
+
+	m_FireFlag = false;
 }
 
 const DirectX::SimpleMath::Vector3& Player::GetTrans()
