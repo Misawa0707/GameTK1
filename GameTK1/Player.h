@@ -70,6 +70,6 @@ protected:
 	//弾丸の速度ベクトル
 	DirectX::SimpleMath::Vector3 m_BulletVel;
 
-	bool m_FireFlag;
+	bool FireFlag;
 };
 
