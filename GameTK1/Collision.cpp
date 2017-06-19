@@ -6,7 +6,7 @@ using namespace DirectX::SimpleMath;
 /// ‹…‚Æ‹…‚Ì‚ ‚½‚è”»’è
 /// </summary>
 /// <param name="sphereA">‹…A</param>
-/// <param name="sphereB">‹…B</param>
+/// <param name="sphereB">‹…B</param> 
 /// <returns>true:“–‚½‚Á‚Ä‚¢‚éfalse:“–‚½‚Á‚Ä‚¢‚È‚¢</returns>
 bool CheckSphere2Sphere(const Sphere& sphereA, const Sphere& sphereB)
 {

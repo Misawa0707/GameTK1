@@ -58,6 +58,17 @@ void Player::Initialize()
 
 	//スケール
 	m_cycle = 0.0f;
+	//デフォルトで発射していない
+	FireFlag = false;
+
+
+	{//弾丸用のあたり判定ノードの設定
+		m_CollisionNodeBullet.Initialize();
+		//親パーツを設定
+		m_CollisionNodeBullet.SetParent(&m_Obj[PARTS_HAND]);
+		m_CollisionNodeBullet.SetTrans(Vector3(0, 0, 0));
+		m_CollisionNodeBullet.SetLocalRadius(0.5f);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -146,6 +157,7 @@ void Player::Update()
 			FireBullet();
 		}
 	}
+
 	if (FireFlag)
 	{
 		// 弾丸パーツの座標を移動
@@ -170,6 +182,7 @@ void Player::Calc()
 	{
 		it->Update();
 	}
+	m_CollisionNodeBullet.Update();
 }
 
 //-----------------------------------------------------------------------------
@@ -183,6 +196,7 @@ void Player::Draw()
 	{
 		it->Draw();
 	}
+	m_CollisionNodeBullet.Draw();
 }
 
 void Player::FireBullet()
