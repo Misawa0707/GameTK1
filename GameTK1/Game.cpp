@@ -100,7 +100,6 @@ void Game::Initialize(HWND window, int width, int height)
 		m_enemies[i] = std::make_unique<Enemy>(keyboard.get());
 		m_enemies[i]->Initialize();
 	}
-
 }
 
 // Executes the basic game loop.
@@ -173,6 +172,35 @@ void Game::Update(DX::StepTimer const& timer)
 		enemy->Update();
 		//(*it)->Update();‚Å‚à‚¢‚¢
 	}
+
+	{//’eŠÛ‚Æ“G‚Ì“–‚½‚è”»’è
+		//’eŠÛ‚Ì”»’è‹…‚Ìæ“¾
+		const Sphere& bulletSphere = m_player->GetCollisionNodeBullet();
+
+		//“G‚Ì”•ª‚¾‚¯ˆ—‚ğ‚·‚é
+		for (std::vector<std::unique_ptr<Enemy>> ::iterator it = m_enemies.begin();
+			it != m_enemies.end();)
+		{
+			Enemy* enemy = it->get();
+			//“G‚Ì”»’è‹…æ“¾
+			const Sphere& enemySphere = enemy->GetCollisionEnemy();
+			//“ñ‚Â‚Ì‹…‚ª“–‚½‚Á‚Ä‚¢‚½‚ç
+			if (CheckSphere2Sphere(bulletSphere, enemySphere))
+			{
+				//“G‚ğE‚·
+				//Á‚µ‚½—v‘f‚ÌŸ‚Ì—v‘f‚ğw‚·ƒCƒeƒŒ[ƒ^
+				it = m_enemies.erase(it);
+			}
+			else
+			{
+				//Á‚³‚È‚©‚Á‚½ê‡A•’Ê‚É‚¢‚Ä‚ê‚O“c‚ği‚ß‚é
+				it++;
+			}
+		}
+
+
+	}
+
 	{
 		//ƒJƒƒ‰
 		m_Camera->Update();

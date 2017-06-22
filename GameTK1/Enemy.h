@@ -11,6 +11,7 @@
 #include <Keyboard.h>
 #include <vector>
 #include "Obj3D.h"
+#include "CollisionNode.h"
 
 // 自機
 class Enemy
@@ -52,6 +53,7 @@ public:
 	// ワールド行列を取得
 	const DirectX::SimpleMath::Matrix& GetLocalWorld();
 	
+	const SphereNode& GetCollisionEnemy() { return m_CollisionEnemy; }
 protected:
 
 	// メンバ変数
@@ -67,5 +69,7 @@ protected:
 	int m_Timer;
 	//目標角度
 	float m_DistAngle;
+
+	SphereNode m_CollisionEnemy;
 };
 

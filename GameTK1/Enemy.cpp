@@ -69,6 +69,13 @@ void Enemy::Initialize()
 	m_Timer = 0;
 
 	m_DistAngle = 0;
+
+	{
+		m_CollisionEnemy.Initialize();
+		m_CollisionEnemy.SetParent(&m_Obj[PARTS_BODY2]);
+		
+
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -160,6 +167,7 @@ void Enemy::Calc()
 	{
 		it->Update();
 	}
+	m_CollisionEnemy.Update();
 }
 
 //-----------------------------------------------------------------------------
@@ -173,6 +181,7 @@ void Enemy::Draw()
 	{
 		it->Draw();
 	}
+	m_CollisionEnemy.Draw();
 }
 
 const DirectX::SimpleMath::Vector3& Enemy::GetTrans()
