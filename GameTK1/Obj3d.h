@@ -10,6 +10,7 @@
 #include <CommonStates.h>
 #include <SimpleMath.h>
 #include <Model.h>
+#include <map>
 
 #include "Camera.h"
 
@@ -38,6 +39,8 @@ private:
 public:
 	//コンストラクタ
 	Obj3d();
+
+	
 	//CMOモデルの読み込み
 	void LoadModel(const wchar_t* fileName);
 	//更新

@@ -100,6 +100,9 @@ void Game::Initialize(HWND window, int width, int height)
 		m_enemies[i] = std::make_unique<Enemy>(keyboard.get());
 		m_enemies[i]->Initialize();
 	}
+
+	
+
 }
 
 // Executes the basic game loop.
@@ -108,7 +111,8 @@ void Game::Tick()
 	m_timer.Tick([&]()
 	{
 		Update(m_timer);
-	});
+	}
+	);
 
 	Render();
 }
@@ -123,7 +127,6 @@ void Game::Update(DX::StepTimer const& timer)
 	// 毎フレーム処理を書く
 	m_debugCamera->Update();
 
-	
 	// ボールワールド行列を計算
 
 	//for (int i = 0; i < 10; i++)
@@ -172,11 +175,9 @@ void Game::Update(DX::StepTimer const& timer)
 		enemy->Update();
 		//(*it)->Update();でもいい
 	}
-
 	{//弾丸と敵の当たり判定
 		//弾丸の判定球の取得
 		const Sphere& bulletSphere = m_player->GetCollisionNodeBullet();
-
 		//敵の数分だけ処理をする
 		for (std::vector<std::unique_ptr<Enemy>> ::iterator it = m_enemies.begin();
 			it != m_enemies.end();)
@@ -187,20 +188,29 @@ void Game::Update(DX::StepTimer const& timer)
 			//二つの球が当たっていたら
 			if (CheckSphere2Sphere(bulletSphere, enemySphere))
 			{
+				ModelEffectManager::getInstance()->Entry(
+					L"Resources/HitEffect.cmo",	// モデルファイル
+					10,	// 寿命フレーム数
+					Vector3(enemy->GetTrans().x,enemy->GetTrans().y+1, enemy->GetTrans().z),	// ワールド座標
+					Vector3(0, 0, 0),	// 速度
+					Vector3(0, 0, 0),	// 加速度
+					Vector3(0, 0, 0),	// 回転角（初期）
+					Vector3(0, 0, 0),	// 回転角（最終）
+					Vector3(0, 0, 0),	// スケール（初期）
+					Vector3(6, 6, 6)	// スケール（最終）
+				);
 				//敵を殺す
 				//消した要素の次の要素を指すイテレータ
 				it = m_enemies.erase(it);
 			}
 			else
 			{
-				//消さなかった場合、普通にいてれ０田を進める
+				//消さなかった場合、普通にイテレータを進める
 				it++;
 			}
 		}
-
-
 	}
-
+		ModelEffectManager::getInstance()->Update();
 	{
 		//カメラ
 		m_Camera->Update();
@@ -267,6 +277,7 @@ void Game::Render()
 		enemy->Draw();
 		//(*it)->Drae();でもいい
 	}
+	ModelEffectManager::getInstance()->Draw();
 
 	m_batch->Begin();
 
@@ -274,7 +285,6 @@ void Game::Render()
 
 	Present();
 }
-
 // Helper method to clear the back buffers.
 void Game::Clear()
 {

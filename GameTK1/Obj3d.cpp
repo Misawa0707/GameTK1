@@ -41,6 +41,8 @@ Obj3d::Obj3d()
 
 }
 
+
+
 void Obj3d::LoadModel(const wchar_t * fileName)
 {
 	//COM‚©‚çƒ‚ƒfƒ‹‚ğ“Ç‚İ‚Ş
