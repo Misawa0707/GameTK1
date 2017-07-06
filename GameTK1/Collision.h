@@ -25,10 +25,26 @@ public:
 //線分
 class Segment 
 {
+public:
 	//始点座標
 	DirectX::SimpleMath::Vector3 Start;
 	//終点座標
 	DirectX::SimpleMath::Vector3 End;
 };
+//三角形
+class Triangle
+{
+public:
+	//頂点座標
+	DirectX::SimpleMath::Vector3 P0;
+	DirectX::SimpleMath::Vector3 P1;
+	DirectX::SimpleMath::Vector3 P2;
+	//法線ベクトル
+	DirectX::SimpleMath::Vector3 Normal;
+};
 
 bool CheckSphere2Sphere(const Sphere & sphereA, const Sphere & sphereB);
+
+void ComputeTriangle(const DirectX::SimpleMath::Vector3 & _p0, const DirectX::SimpleMath::Vector3 & _p1, const DirectX::SimpleMath::Vector3 & _p2, Triangle * _triangle);
+
+bool CheckSphere2Triangle(const Sphere & _sphere, const Triangle & _triangle, DirectX::SimpleMath::Vector3 * _inter);

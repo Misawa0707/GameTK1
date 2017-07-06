@@ -47,6 +47,14 @@ void Game::Initialize(HWND window, int width, int height)
 	m_Camera->SetKeyboard(keyboard.get());
 	//３Dオブジェクトの静的メンバ変数の初期化
 	Obj3d::InitializeStatic(m_d3dDevice,m_d3dContext,m_Camera.get());
+	//土地当たりの設定
+	LandShapeCommonDef lscDef;
+
+	lscDef.pDevice = m_d3dDevice.Get();
+	lscDef.pDeviceContext = m_d3dContext.Get();
+	lscDef.pCamera = m_Camera.get();
+	//土地当たりの共通初期化
+	LandShape::InitializeCommon(lscDef);
 
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionNormal>>(m_d3dContext.Get());
 
@@ -80,12 +88,13 @@ void Game::Initialize(HWND window, int width, int height)
 	m_objSkydome.LoadModel(L"Resources/sky.cmo");
 
 	// モデルの生成
-	m_modelGround = Model::CreateFromCMO(
+	/*m_modelGround = Model::CreateFromCMO(
 		m_d3dDevice.Get(),
 		L"Resources/ground200m.cmo",
 		*m_factory
-	);
-
+	);*/
+	//地形の読み込み　landsphape comファイル名
+	m_LandShape.Initialize(L"ground200m", L"ground200m");
 	//プレイヤーの生成
 	m_player = std::make_unique<Player>(keyboard.get());
 	m_player->Initialize();
@@ -100,9 +109,6 @@ void Game::Initialize(HWND window, int width, int height)
 		m_enemies[i] = std::make_unique<Enemy>(keyboard.get());
 		m_enemies[i]->Initialize();
 	}
-
-	
-
 }
 
 // Executes the basic game loop.
@@ -217,7 +223,31 @@ void Game::Update(DX::StepTimer const& timer)
 		m_view = m_Camera->GetView();
 		m_proj = m_Camera->GetProj();
 	}
+	
 	m_objSkydome.Update();
+
+	m_LandShape.Update();
+
+	//自機の地形へのめり込んでいるのを解消する
+	{
+		Sphere sphere = m_player->GetCollisionNodeBody();
+		//自機のワールド座標
+		Vector3 trans = m_player->GetTrans();
+		//球からプレイヤーへのベクトル
+		Vector3 sphere2player = trans - sphere.Center;
+		//めりこみ排斥ベクトル
+		Vector3 reject;
+		//球と地形のあたり判定
+		if (m_LandShape.IntersectSphere(sphere, &reject))
+		{
+			//めり込みを解消するように球をずらす
+			sphere.Center += reject;
+		}
+		//自機を移動
+		m_player->SetTrans(sphere.Center + sphere2player);
+		//ワールド行列を更新
+		m_player->Calc();
+	}
 }
 
 // Draws the scene.
@@ -261,12 +291,14 @@ void Game::Render()
 	m_objSkydome.Draw();
 
 	// モデルの描画
-	m_modelGround->Draw(m_d3dContext.Get(),
-		*m_states,
-		Matrix::Identity,
-		m_view,
-		m_proj
-	);
+	//m_modelGround->Draw(m_d3dContext.Get(),
+	//	*m_states,
+	//	Matrix::Identity,
+	//	m_view,
+	//	m_proj
+	//);
+	m_LandShape.Draw();
+
 	//プレイヤーの描画
 	m_player->Draw();
 

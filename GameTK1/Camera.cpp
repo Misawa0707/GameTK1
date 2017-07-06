@@ -77,3 +77,4 @@ void Camera::SetFarClip(float farclip)
 {
 	m_farclip = farclip;
 }
+

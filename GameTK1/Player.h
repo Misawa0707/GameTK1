@@ -58,6 +58,8 @@ public:
 	const DirectX::SimpleMath::Matrix& GetLocalWorld();
 	//’eŠÛ—p‚Ì‚ ‚½‚è”»’è‚ğæ“¾
 	const SphereNode& GetCollisionNodeBullet() { return m_CollisionNodeBullet; }
+
+	const SphereNode& GetCollisionNodeBody() { return m_CollisionNodeBody; }
 protected:
 
 	// ƒƒ“ƒo•Ï”
@@ -75,5 +77,8 @@ protected:
 	bool FireFlag;
 	//’eŠÛ—p‚Ì“–‚½‚è”»’è
 	SphereNode m_CollisionNodeBullet;
+
+	SphereNode m_CollisionNodeBody;
+
 };
 

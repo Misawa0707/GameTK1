@@ -164,11 +164,11 @@ void Player::Update()
 		Vector3 pos = m_Obj[PARTS_HAND].Gettranslaton();
 		m_Obj[PARTS_HAND].Settranslaton(pos + m_BulletVel);
 	}
-	
-	
+	m_CollisionNodeBody.Initialize();
+	m_CollisionNodeBody.SetParent(&m_Obj[PARTS_BODY2]);
+
+
 	Calc();
-	
-	
 
 }
 
@@ -183,6 +183,7 @@ void Player::Calc()
 		it->Update();
 	}
 	m_CollisionNodeBullet.Update();
+	m_CollisionNodeBody.Update();
 }
 
 //-----------------------------------------------------------------------------
@@ -197,6 +198,7 @@ void Player::Draw()
 		it->Draw();
 	}
 	m_CollisionNodeBullet.Draw();
+	m_CollisionNodeBody.Draw();
 }
 
 void Player::FireBullet()

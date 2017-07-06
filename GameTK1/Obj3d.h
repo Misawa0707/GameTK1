@@ -58,6 +58,8 @@ public:
 	void Settranslaton(const DirectX::SimpleMath::Vector3& translaton) { m_translaton = translaton; }
 	//親の３Dオブジェクトへのポインタ
 	void SetObjParent(Obj3d* ObjParent) { m_ObjParent = ObjParent; }
+	//	ワールド行列
+	void Setworld(const DirectX::SimpleMath::Matrix& world) { m_world = world; }
 	//スケーリング（XYZ)
 	//getter
 	const DirectX::SimpleMath::Vector3& Getscale() { return m_scale; }
