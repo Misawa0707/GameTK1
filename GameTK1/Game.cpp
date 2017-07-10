@@ -93,8 +93,11 @@ void Game::Initialize(HWND window, int width, int height)
 		L"Resources/ground200m.cmo",
 		*m_factory
 	);*/
+
 	//地形の読み込み　landsphape comファイル名
 	m_LandShape.Initialize(L"ground200m", L"ground200m");
+	//傾ける
+	m_LandShape.SetRot(Vector3(0.5f, 0, 0));
 	//プレイヤーの生成
 	m_player = std::make_unique<Player>(keyboard.get());
 	m_player->Initialize();
@@ -247,6 +250,41 @@ void Game::Update(DX::StepTimer const& timer)
 		m_player->SetTrans(sphere.Center + sphere2player);
 		//ワールド行列を更新
 		m_player->Calc();
+	}
+
+	//自機が地面に乗る処理
+	{
+		const Vector3 Vel = m_player->GetVelocity();
+		if (Vel.y <= 0.0f)
+		{
+			//自機の頭から足元への線分
+			Segment player_sgment;
+			//自機のワールド座標
+			Vector3 trans = m_player->GetTrans();
+			player_sgment.Start = trans + Vector3(0, 1, 0);
+			//足元50cmセンチ下まで地面を検出
+			player_sgment.End = trans + Vector3(0, -0.5f, 0);
+			//交点座標
+			Vector3 inter;
+			//地形と線分の当たり判定（レイキャスト）RayCasting
+			if (m_LandShape.IntersectSegment(player_sgment, &inter))
+			{
+				//Y座標を交点に移動させる
+				trans.y = inter.y;
+				//落下を終了
+				m_player->StopJump();
+			}
+			else
+			{
+				//落下を開始
+				m_player->StartFall();
+			}
+
+			//自機を移動
+			m_player->SetTrans(trans);
+			//ワールド行列を更新
+			m_player->Calc();
+		}
 	}
 }
 

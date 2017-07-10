@@ -13,7 +13,7 @@
 #include <VertexTypes.h>
 #include <CommonStates.h>
 #include <map>
-//
+
 #include "Camera.h"
 #include "Obj3D.h"
 #include "Collision.h"
